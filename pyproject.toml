@@ -1,0 +1,27 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "ragondin"
+version = "0.1.0"
+description = "Local personal RAG CLI"
+authors = [
+   { name = "Augustin Bresset" }
+]
+readme = "README.md"
+requires-python = ">=3.9"
+
+dependencies = [
+    "click",
+    "faiss-cpu",
+    "langchain",
+    "langchain-core",
+    "langchain-community",
+    "langchain-text-splitters",
+    "sentence-transformers",
+]
+
+
+[project.scripts]
+ragondin = "ragondin.cli:cli"
