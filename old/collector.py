@@ -1,8 +1,8 @@
 import os, shutil
 from pathlib import Path
 
-from .project import BASE_DIR, get_project_paths
-from .project import list_sources
+from .project.manager import BASE_DIR, get_project_paths
+from .project.manager import list_sources
 
 
 VALID_EXT = {

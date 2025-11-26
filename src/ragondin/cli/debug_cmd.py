@@ -5,11 +5,12 @@ import numpy as np
 
 from ragondin.cli.main import cli
 
-from ragondin.core.project import BASE_DIR
-from ragondin.core.active import get_active_project
-from ragondin.core.splitter import load_and_split_file
-from ragondin.core.vectordb import load_vector_db
-from ragondin.core.retriever import build_retriever
+from ragondin.core.project.model import Project
+from ragondin.core.indexing.splitter import load_and_split_file
+from ragondin.core.indexing.vectordb import load_vector_db
+from ragondin.core.retrieval.retriever import build_retriever
+
+from .utils import require_active_project
 
 @cli.group()
 def debug():
@@ -18,42 +19,13 @@ def debug():
 
 
 @debug.command()
-def chunks():
-    """Show generated document chunks before indexing."""
-    proj = get_active_project()
-    if proj is None:
-        click.echo("No project connected.")
-        return
-    
-    base = BASE_DIR / proj
-    paths_file = base / "paths.txt"
-
-    if not paths_file.exists():
-        click.echo("No collected files found. Run: ragondin collect")
-        return
-    
-    project_root = base
-    files = [Path(p) for p in paths_file.read_text().splitlines()]
-    
-    click.echo(f"Found {len(files)} files. Splitting...\n")
-
-    for file in files:
-        docs = load_and_split_file(file, project_root)
-        click.echo(f"\n=== {file} ===")
-        for i, d in enumerate(docs, 1):
-            click.echo(f"\n--- Chunk {i} ({len(d.page_content)} chars) ---")
-            click.echo(d.page_content[:600] + "\n[...]")
-
-@debug.command()
 @click.option("--sample", default=5, help="Number of chunks to inspect")
 def embeddings(sample):
     """Inspect embeddings (norm, head of vector, metadata)."""
-    proj = get_active_project()
-    if proj is None:
-        click.echo("No project connected.")
-        return
+    project = require_active_project()
     
-    db = load_vector_db(proj)
+    db = load_vector_db(project)
+    
     emb = db.embedding_function
 
     vectors = db.index.reconstruct_n(0, sample)
@@ -73,12 +45,10 @@ def embeddings(sample):
 @click.argument("query")
 def retriever(query):
     """Debug the FAISS/MMR retrieval for a specific query."""
-    proj = get_active_project()
-    if proj is None:
-        click.echo("No project connected.")
-        return
+    project = require_active_project()
+    
 
-    db = load_vector_db(proj)
+    db = load_vector_db(project)
     retr = build_retriever(db, k=5, fetch_k=20)
 
     emb = db.embedding_function.embed_query(query)

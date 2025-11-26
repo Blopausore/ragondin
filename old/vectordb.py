@@ -2,7 +2,7 @@ import faiss
 from langchain_community.vectorstores import FAISS
 from langchain_community.docstore.in_memory import InMemoryDocstore
 from pathlib import Path
-from .project import BASE_DIR
+from .project.manager import BASE_DIR
 from .embeddings import NormalizedEmbeddings
 
 

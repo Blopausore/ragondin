@@ -55,6 +55,11 @@ def list_sources(project: str):
 
 
 def get_project_paths(project: str):
-    project_dir = BASE_DIR / project
-    with open(project_dir / "paths.txt", "r") as f:
+    paths_file = BASE_DIR / project / "paths.txt"
+    
+    if not paths_file.exists():
+        return []
+    
+    with open(paths_file, "r") as f:
         return [x.strip() for x in f.readlines() if x.strip()]
+    

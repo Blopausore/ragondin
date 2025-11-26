@@ -3,15 +3,17 @@ import click
 
 from ragondin.cli.main import cli
 
-from ragondin.core.project import BASE_DIR, create_project, add_source, list_sources, remove_source
-from ragondin.core.active import set_active_project, get_active_project, disconnect, get_status
 
+from ragondin.core.project.model import Project
+from ragondin.core.project.active import load_active_project, set_active_project, get_active_project, disconnect, get_status
+
+from .utils import require_active_project
 
 @cli.command()
 @click.argument("project_name")
 def create(project_name):
     """Create a new project."""
-    create_project(project_name)
+    Project.create(project_name)
     click.echo(f"Project '{project_name}' created.")
 
 @cli.command()
@@ -28,20 +30,18 @@ def disconnect():
         click.echo("No active project to disconnect.")
         return
 
-    proj = get_active_project()
+    project_name = get_active_project()
     disconnect()
-    click.echo(f"Disconnected from '{proj}'.")
+    click.echo(f"Disconnected from '{project_name}'.")
 
 @cli.command()
 def status():
     """Show the current active project and its sources."""
-    proj = get_status()
-    if proj is None:
-        click.echo("No active project.")
-        return
+    project = require_active_project()
 
-    click.echo(f"Active project: {proj}\n")
-    paths = list_sources(proj)
+    click.echo(f"Active project: {project.name}\n")
+
+    paths = project.list_sources()
 
     if not paths:
         click.echo("No sources added.")
@@ -53,14 +53,14 @@ def status():
 
     # Vérification index
     from pathlib import Path
-    idx = BASE_DIR / proj / "index" / "index.faiss"
+    idx = project.index_dir / "index.faiss"
     if idx.exists():
         click.echo("\nIndex: ✔ present")
     else:
         click.echo("\nIndex: ✘ missing (run `ragondin process`)")
 
     # Nombre de raw docs
-    raw_dir = BASE_DIR / proj / "raw_docs"
+    raw_dir = project.root / "raw_docs"
     if raw_dir.exists():
         count = len(list(raw_dir.glob("*")))
         click.echo(f"Raw docs: {count}")
