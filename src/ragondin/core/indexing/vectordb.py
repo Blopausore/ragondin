@@ -21,7 +21,7 @@ def build_vector_db(project: Project, docs, emb_cls=None):
     vector_store.save_local(str(project.index_dir))
     
     
-def load_vector_db(project: Project, emb_cls=None):
+def load_vector_db(project: Project, emb_cls=None) -> FAISS:
     
     if not isinstance(project, Project):
         raise TypeError(f"{type(project)} is not a Project")

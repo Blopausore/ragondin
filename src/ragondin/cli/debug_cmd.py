@@ -69,9 +69,3 @@ def retriever(query):
         click.echo(f"• {d.metadata.get('path')}")
 
 
-
-@debug.command()
-def debug_cli(query=""):
-    """Debug the CLI. See if changes are reflected."""
-    click.echo(f"CLI debug command received query: {query}")
-    return 

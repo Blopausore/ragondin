@@ -18,6 +18,7 @@ dependencies = [
     "langchain",
     "langchain-core",
     "langchain-community",
+    "langchain_huggingface",
     "langchain-text-splitters",
     "sentence-transformers",
 ]

@@ -1,37 +1,44 @@
-import click
 
 from ragondin.cli.main import cli
 
-from ragondin.core.project.model import Project
-from ragondin.core.project.active import get_active_project, load_active_project
 
 from .utils import require_active_project
+import click
+from ragondin.core.project.model import Project
 
-@cli.command()
-@click.argument("dir_path")
-def add(dir_path):
-    """Add a directory as a source to the active project."""
-    project = require_active_project()
-    project.add_source(dir_path)
-    click.echo(f"Added source: {dir_path}")
 
-@cli.command()
-def list():
-    """List all source directories of the active project."""
-    project = require_active_project()
+@cli.group()
+def source():
+    """Manage sources inside the active project."""
+    pass
 
-    paths = project.list_sources()
-    if not paths:
-        click.echo("No sources added.")
-    for p in paths:
-        click.echo(f" - {p}")
-        
-        
-@cli.command(name="del")
-@click.argument("dir_path")
-def delete_source(dir_path):
-    """Remove a directory source from the active project."""
-    project = require_active_project()
-    project.remove_source(dir_path)
-    click.echo(f"Removed source: {dir_path}")
+@source.command(name="add")
+@click.argument("path")
+def add_source(path):
+    """Add a source folder to the active project."""
+    proj = require_active_project()
+    proj.add_source(path)
+    click.echo(f"Added source: {path}")
 
+
+@source.command(name="del")
+@click.argument("path")
+def delete_source(path):
+    """Remove a source from the active project."""
+    proj = require_active_project()
+    proj.remove_source(path)
+    click.echo(f"Removed source: {path}")
+
+
+@source.command(name="list")
+def list_sources():
+    """List sources for the active project."""
+    proj = require_active_project()
+
+    sources = proj.list_sources()
+    if not sources:
+        click.echo("No sources defined.")
+        return
+
+    for s in sources:
+        click.echo(f"- {s}")

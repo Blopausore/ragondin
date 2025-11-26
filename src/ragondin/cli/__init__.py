@@ -1,1 +1,4 @@
-from ragondin.cli.main import cli
+
+from .main import cli
+
+__all__ = ["cli"]

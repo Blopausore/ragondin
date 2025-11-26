@@ -2,18 +2,44 @@
 import pytest
 from pathlib import Path
 import shutil
-import tempfile
+
+from ragondin.core.project.model import Project
+from ragondin.core.config.manager import CONFIG_DIR, CONFIG_FILE, ensure_config
+
+
+@pytest.fixture(autouse=True)
+def clean_config(tmp_path, monkeypatch):
+    """
+    Each test gets a clean isolated config directory.
+    """
+    monkeypatch.setattr("ragondin.core.config.manager.CONFIG_DIR", tmp_path)
+    monkeypatch.setattr("ragondin.core.config.manager.CONFIG_FILE", tmp_path / "config.json")
+
+    ensure_config()
+    return tmp_path
+
 
 @pytest.fixture
-def temp_project_dir():
-    """Create a temporary project structure with files."""
-    root = Path(tempfile.mkdtemp())
+def project_dir(tmp_path):
+    """Temporary project root."""
+    return tmp_path / "proj"
 
-    (root / "file1.py").write_text("def test():\n    return 42")
-    (root / "file2.md").write_text("# Title\n\nSome content")
-    (root / "sub").mkdir()
-    (root / "sub" / "nested.txt").write_text("Hello nested")
 
-    yield root
+@pytest.fixture
+def project(project_dir):
+    """A created project instance."""
+    p = Project.create("proj", base_dir=project_dir.parent)
+    return p
 
-    shutil.rmtree(root)
+
+@pytest.fixture
+def make_file(tmp_path):
+    """
+    Utility: write a file easily.
+    """
+    def _make(rel_path: str, content: str = "hello"):
+        path = tmp_path / rel_path
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(content)
+        return path
+    return _make

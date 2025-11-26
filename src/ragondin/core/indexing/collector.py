@@ -1,6 +1,7 @@
+from typing import List, Tuple
 from pathlib import Path
 from ragondin.core.project.model import Project
-from ragondin.core.project.manager import list_sources
+
 VALID_EXT = {
     ".md", ".txt", ".py", ".json", ".rst", ".yaml", ".yml",
     ".toml", ".cfg", ".ini", ".sh", ".tex", ".xml", ".csv"
@@ -15,7 +16,7 @@ def is_valid_file(path: Path) -> bool:
     return path.suffix.lower() in VALID_EXT
 
 
-def collect_files(project: Project):
+def collect_files(project: Project) -> List[Tuple[Path, Path]]:
     """Return all valid files from all registered sources.
     
     Return:

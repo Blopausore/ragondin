@@ -4,7 +4,6 @@ import click
 
 from ragondin.cli.main import cli
 
-from ragondin.core.project.active import load_active_project
 from ragondin.core.indexing.pipeline import process_project
 from .utils import require_active_project
 

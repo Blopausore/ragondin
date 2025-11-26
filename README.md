@@ -1,175 +1,241 @@
-# Ragondin
+# Ragondin – Local, Configurable Retrieval-Augmented Generation Toolkit
 
-Ragondin is a RAG create for personal use.
+Ragondin is a lightweight, fully local Retrieval-Augmented Generation (RAG) toolkit designed for developers who want complete control over their indexing, retrieval, and document-processing pipeline.
+It provides a structured way to create projects, register document sources, index them, and query the knowledge base through a streamlined command-line interface.
 
-## Usage
-
-Ragondin provides a command-line interface to create, inspect, index and query local RAG projects.
-A *project* is a directory containing processed documents, embeddings, and a FAISS index.
-Ragondin always works on the currently active project.
-
-### Global Help
-
-```bash
-ragondin --help
-```
-
-This displays the list of available commands and general information about the CLI.
+Ragondin focuses on transparency, configurability, and extensibility.
+It integrates modern embedding models, optional reranking, and a clean project-oriented architecture.
 
 ---
 
-## Project Management
+## Features
 
-### Create a new project
-
-```bash
-ragondin create <project_name>
-```
-
-Creates a new project under `~/.ragondin/projects/` and initializes its structure.
-
-### Connect to an existing project
-
-```bash
-ragondin connect <project_name>
-```
-
-Sets the project as “active”.
-All subsequent commands operate on this project.
-
-### Disconnect
-
-```bash
-ragondin disconnect
-```
-
-Removes the active project context.
-
-### Show project status
-
-```bash
-ragondin status
-```
-
-Displays the active project and its registered source directories.
+* Project-based organization with isolated indexing space
+* Automatic file discovery, splitting and preprocessing
+* Incremental indexing pipeline using FAISS vector store
+* Pluggable embedding models (default: BGE base)
+* Optional cross-encoder reranking (BGE reranker)
+* Extensible configuration system (embedding model, reranker, k-retrieval, chunk sizes)
+* Clean CLI for project management and retrieval tasks
+* Human-readable chunk metadata with relative paths
 
 ---
 
-## Managing Source Directories
+# Installation
 
-Each project maintains a list of root directories from which documents are collected.
+## Requirements
 
-### Add a source directory
+* Python 3.10+
+* A Unix-like environment (Linux, macOS)
 
-```bash
-ragondin add <path>
+## Install from source
+
+```
+git clone https://github.com/your-repository/ragondin.git
+cd ragondin
+pip install -e .
 ```
 
-Registers a new directory whose files will be processed, chunked and embedded.
-
-### Remove a source directory
-
-```bash
-ragondin del <path>
-```
-
-Unregisters a directory previously added to the project.
-
-### List sources
-
-```bash
-ragondin list
-```
-
-Shows all directories currently tracked by the active project.
+This installs the `ragondin` CLI, all core modules, and dependencies such as FAISS, Transformers, LangChain, and HuggingFace rerankers.
 
 ---
 
-## Processing and Indexing
+# Quick Start
 
-### Process a project
+## 1. Create a new Ragondin project
 
-```bash
+```
+ragondin create myproject
+ragondin connect myproject
+```
+
+## 2. Add document sources
+
+You can add any directory containing files:
+
+```
+ragondin add-source ~/work/documentation
+ragondin add-source ~/research/projectA
+```
+
+Ragondin indexes all supported files recursively (`.md`, `.py`, `.tex`, `.json`, `.csv`, etc.).
+
+## 3. Process and index the project
+
+```
 ragondin process
 ```
 
-Runs all stages:
+This runs the incremental indexing pipeline:
 
-1. Collect files
-2. Split documents into chunks
-3. Embed chunks
-4. Build or update the FAISS index
+* collect all files
+* split into chunks
+* add metadata
+* embed chunks
+* build/update FAISS index
 
-### Rebuild the index
+## 4. Ask questions
 
-```bash
-ragondin rebuild
+```
+ragondin ask "Explain the architecture of this project."
 ```
 
-Deletes the existing index and regenerates all embeddings and FAISS structures from scratch.
+Ragondin retrieves the most relevant chunks and generates a complete prompt containing:
+
+* your question
+* retrieved context
+* recommended instructions for your LLM
+
+## 5. Use optional reranking
+
+Enable:
+
+```
+ragondin config reranker true
+```
+
+Disable:
+
+```
+ragondin config reranker false
+```
+
+Set the model:
+
+```
+ragondin config reranker_model BAAI/bge-reranker-base
+```
 
 ---
 
-## Querying the Project
+# Configuration
 
-### Ask a question
+Ragondin stores global configuration in:
 
-```bash
-ragondin ask "<your question>"
+```
+~/.ragondin/config.json
 ```
 
-Retrieves the most relevant chunks and prints a completed prompt containing:
+You can modify settings through the CLI:
 
-* the retrieved context
-* the user’s question
-* instructions for ChatGPT
+### Set embedding model
 
-This prompt can be pasted directly into a language model for final answering.
+```
+ragondin config embedding BAAI/bge-base-en-v1.5
+```
+
+### Set top-k retrieval
+
+```
+ragondin config k 8
+```
+
+### Enable or disable reranking
+
+```
+ragondin config reranker true
+```
+
+### Display full configuration
+
+```
+ragondin config show
+```
+
+Configuration is applied to all subsequent indexing and retrieval operations.
 
 ---
 
-## Debugging Tools
+# How Ragondin Works
 
-Ragondin exposes internal debugging utilities under the `debug` command:
+Ragondin is structured around three core concepts:
 
-```bash
-ragondin debug --help
+## 1. Projects
+
+Each project represents an isolated knowledge space.
+A project contains:
+
+* an index directory
+* a chunk index file
+* a list of document sources
+* configuration metadata
+
+A project does not own the document sources; it references external paths.
+
+## 2. Indexing Pipeline
+
+The indexing pipeline performs the following steps:
+
+1. Collect files from all registered source directories
+2. Validate and filter supported extensions
+3. Split files into well-structured textual chunks
+   (Markdown headers, Python code blocks, JSON sections, CSV headers, etc.)
+4. Add contextual headers and relative paths
+5. Compute stable hashes to detect changed or unchanged chunks
+6. Embed new or modified chunks using the configured embedding model
+7. Build or update the FAISS vector index
+8. Save a chunk index for incremental re-processing
+
+This makes the pipeline both efficient and reproducible.
+
+## 3. Retrieval Pipeline
+
+Ragondin uses a two-stage retrieval system:
+
+### Stage 1: Vector Search
+
+The FAISS index returns the top-k semantically similar chunks using cosine similarity.
+
+### Stage 2 (optional): Reranking
+
+If enabled, a cross-encoder reranker (such as BGE-reranker) re-orders the retrieved chunks based on semantic relevance to the user query.
+
+### Final Output
+
+The `ragondin ask` command produces a complete structured prompt containing:
+
+* the user question
+* selected contextual chunks
+* final instructions for an LLM
+
+Ragondin does not generate text; it produces high-quality prompts for any LLM.
+
+---
+
+# File Structure (Overview)
+
+```
+ragondin/
+  core/
+    project/
+      model.py          Project definition
+      manager.py        Project creation and utilities
+      active.py         Active project tracking
+    config/
+      manager.py        Global configuration management
+    indexing/
+      collector.py      File discovery
+      splitter.py       File splitting
+      hashing.py        Chunk hashing
+      pipeline.py       Indexing engine
+      vectordb.py       FAISS interfaces
+    retrieval/
+      retriever.py      Vector retriever
+      reranker.py       Cross-encoder reranking
+    embeddings/
+      embeddings.py     Embedding model loading
+  cli/
+    main.py             CLI entrypoint
+    process_cmd.py      Indexing commands
+    ask_cmd.py          Query commands
+    config_cmd.py       Configuration commands
+    utils.py            Shared CLI utilities
 ```
 
-### Inspect generated chunks (before embedding)
+---
 
-```bash
-ragondin debug chunks
-```
+# Contributing
 
-Shows how files are split, including metadata and chunk boundaries.
-
-### Inspect embeddings
-
-```bash
-ragondin debug embeddings
-```
-
-Displays information such as vector norms, vector previews, and associated metadata.
-
-### Debug retrieval
-
-```bash
-ragondin debug retriever "<query>"
-```
-
-Shows:
-
-* retrieved chunk list
-* scores
-* raw text content
-* FAISS results and MMR output
-
-Useful for understanding why certain chunks are selected.
-
-### Debug the CLI itself
-
-```bash
-ragondin debug debug-cli
-```
+Pull requests, issue reports, and architecture discussions are welcome.
+Ragondin is designed to be extended, and community improvements are encouraged.
 

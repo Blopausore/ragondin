@@ -1,14 +1,25 @@
+from .reranker import build_reranker, apply_reranker
+from ..config.manager import get_value
+
+from ragondin.core.config.manager import get_config
 
 
-def build_retriever(vector_store, k=5, fetch_k=15, lambda_mult=0.5):
-    return vector_store.as_retriever(
-        search_type="mmr",
-        search_kwargs={
-            "k": k,
-            "fetch_k": fetch_k,
-            "lambda_mult": lambda_mult
-        }
+def build_retriever(vector_store):
+    cfg = get_config()
+
+    retriever = vector_store.as_retriever(
+        search_kwargs={"k": cfg["retriever_k"]}
     )
+
+    if cfg.get("use_reranker", False):
+        model_name = cfg.get("reranker_model")
+        reranker = build_reranker(model_name)
+        if reranker:
+            return apply_reranker(retriever, reranker)
+    # if disabled → just return retriever
+    return retriever
+
+
 
 def format_docs(docs, max_chars=5000):
     parts, total = [], 0

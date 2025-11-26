@@ -1,74 +1,13 @@
-import json
+# ragondin/core/project/manager.py
 from pathlib import Path
+from .model import BASE_DIR
 
-BASE_DIR = Path.home() / ".ragondin" / "projects"
-
-def create_project(name: str):
-    proj_dir = BASE_DIR / name
-    if proj_dir.exists():
-        raise ValueError(f"Project '{name}' already exists.")
-    (proj_dir / "raw_docs").mkdir(parents=True)
-    (proj_dir / "index").mkdir()
-    (proj_dir / "paths.txt").touch()
-
-    config = {"name": name}
-    with open(proj_dir / "config.json", "w") as f:
-        json.dump(config, f, indent=2)
-    return proj_dir
-
-
-def add_source(project: str, path: str):
-    proj_dir = BASE_DIR / project
-    if not proj_dir.exists():
-        raise ValueError(f"Project '{project}' does not exist.")
-
-    abs_path = str(Path(path).resolve())
-
-    paths_file = proj_dir / "paths.txt"
-    if not paths_file.exists():
-        paths_file.touch()
-
-    existing = {p.strip() for p in paths_file.read_text().splitlines() if p.strip()}
-    if abs_path in existing:
-        return
-
-    with open(paths_file, "a") as f:
-        f.write(abs_path + "\n")
-        
-        
-def remove_source(project: str, path: str):
-    proj_dir = BASE_DIR / project
-
-    paths_file = proj_dir / "paths.txt"
-
-    if not paths_file.exists():
-        return
-
-    abs_path = str(Path(path).resolve())
-    
-    lines = [p.strip() for p in paths_file.read_text().splitlines()]
-    new_lines = [p for p in lines if p != abs_path]
-
-    with open(paths_file, "w") as f:
-        for p in new_lines:
-            f.write(p + "\n")
-
-
-def list_sources(project: str):
-    proj_dir = BASE_DIR / project
-    paths_file = proj_dir / "paths.txt"
-    if not paths_file.exists():
+def get_list_projects():
+    """Return a list of all project names in BASE_DIR."""
+    if not BASE_DIR.exists():
         return []
-    return [p.strip() for p in paths_file.read_text().splitlines() if p.strip()]
 
-
-
-def get_project_paths(project: str):
-    paths_file = BASE_DIR / project / "paths.txt"
-    
-    if not paths_file.exists():
-        return []
-    
-    with open(paths_file, "r") as f:
-        return [x.strip() for x in f.readlines() if x.strip()]
-    
+    return [
+        p.name for p in BASE_DIR.iterdir()
+        if p.is_dir()
+    ]

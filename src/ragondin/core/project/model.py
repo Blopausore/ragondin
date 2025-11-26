@@ -22,6 +22,11 @@ class Project:
         config_file (Path): Path to the configuration file.
     
     """
+    
+    @classmethod
+    def get_base_dir(cls) -> Path:
+        return BASE_DIR
+    
     name: str
     root: Path
     
@@ -48,7 +53,9 @@ class Project:
     # ---- CREATE -------------------------------------------------------------
 
     @staticmethod
-    def create(name: str, base_dir: Path = BASE_DIR) -> "Project":
+    def create(name: str, base_dir: Path = None) -> "Project":
+        if base_dir is None:
+            base_dir = BASE_DIR
         root = base_dir / name
         if root.exists():
             raise ValueError(f"Project '{name}' already exists.")
@@ -64,7 +71,9 @@ class Project:
     # ---- LOAD ---------------------------------------------------------------
 
     @staticmethod
-    def load(name: str, base_dir: Path = BASE_DIR) -> "Project":
+    def load(name: str, base_dir: Path = None) -> "Project":
+        if base_dir is None:
+            base_dir = BASE_DIR
         root = base_dir / name
         if not root.exists():
             raise ValueError(f"Project '{name}' does not exist.")
@@ -80,6 +89,8 @@ class Project:
     def add_source(self, path: Path):
         path = Path(path)
         path = path.resolve()
+        if path in self.list_sources():
+            return
         with open(self.paths_file, "a") as f:
             f.write(str(path) + "\n")
 
