@@ -135,8 +135,7 @@ def process():
     files = collect_files(proj)
 
     click.echo(f"Found {len(files)} files. Splitting into chunks...")
-    if not "README.md" in files:
-        click.echo("Warning: No README.md found among sources.")
+    
     all_chunks = []
     warned=False
     for f in files:
@@ -168,11 +167,16 @@ def ask(question):
         return
 
     db = load_vector_db(proj)
-    retriever = build_retriever(db)
+    retriever = build_retriever(db, k=10, fetch_k=20, lambda_mult=0.5)
     docs = retriever.invoke(question)
+    
+    print("=== RETRIEVED CHUNKS ===")
+    for d in docs:
+        print("•", d.metadata.get("path"))
+
     ctx = format_docs(docs)
     prompt = build_final_prompt(question, ctx)
-
+    
     click.echo(prompt)
 
 

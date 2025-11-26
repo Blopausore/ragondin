@@ -44,5 +44,10 @@ It will :
 
 
 
+Then 
+```sh
+ragondin ask [PUT_QUESTION]
+```
+
 
 

@@ -47,14 +47,14 @@ def split_markdown_file(text):
     )
     return splitter.split_text(text)
 
-
 def split_json_file(text):
-    splitter = Re(
-        separators=["\n", " ", ","],
+    splitter = RecursiveJsonSplitter(
         chunk_size=800,
         chunk_overlap=100
     )
     return splitter.create_documents([text])
+
+
 
 def split_yaml_file(text):
     splitter = RecursiveCharacterTextSplitter(
@@ -158,7 +158,7 @@ def load_and_split_file(path: Path, project_root=None):
 
     if suffix in banned_extensions:
         raise ValueError(f"File extension {suffix} is banned for processing.")    
-
+    
     # 1. Load text
     text = path.read_text(errors="ignore")
 
@@ -177,7 +177,12 @@ def load_and_split_file(path: Path, project_root=None):
     # 3. Add headers for context
     wrapped = []
     for d in docs:
+        rel = path.relative_to(project_root) if project_root else path.name
+        d.metadata["path"] = str(rel)
+        d.metadata["file"] = path.name
+        d.metadata["source"] = str(path)
         d.page_content = add_header(d.page_content, path, project_root)
+        
         wrapped.append(d)
 
     return wrapped

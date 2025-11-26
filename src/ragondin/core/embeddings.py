@@ -8,8 +8,11 @@ def _normalize(mat: np.ndarray) -> np.ndarray:
     return mat / norms
 
 class NormalizedEmbeddings(Embeddings):
-    def __init__(self, model="sentence-transformers/all-MiniLM-L6-v2"):
+    def __init__(self, model="BAAI/bge-base-en-v1.5"):
+        print(">>> LOADING MODEL:", model)
         self.base = HuggingFaceEmbeddings(model_name=model)
+        print(">>> MODEL PATH:", self.base.model_name)
+
 
     def embed_documents(self, texts: List[str]):
         X = np.array(self.base.embed_documents(texts), dtype="float32")
