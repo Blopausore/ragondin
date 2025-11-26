@@ -1,8 +1,9 @@
 # tests/test_cli.py
 from click.testing import CliRunner
-from ragondin.cli import cli
 from pathlib import Path
 import json, tempfile, shutil
+
+from ragondin.cli.main import cli
 
 def test_cli_list_empty():
     runner = CliRunner()

@@ -17,3 +17,8 @@ src/ragondin/core/prompt_builder.py
 src/ragondin/core/retriever.py
 src/ragondin/core/splitter.py
 src/ragondin/core/vectordb.py
+tests/test_cli.py
+tests/test_metadata.py
+tests/test_retriever.py
+tests/test_splitter.py
+tests/test_vectordb.py
