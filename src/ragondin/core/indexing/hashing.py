@@ -9,6 +9,7 @@ def sha256(text: str) -> str:
     return hashlib.sha256(text.encode("utf-8")).hexdigest()
 
 
+
 def load_chunk_index(project_dir: Path):
     """
     Return structure:
@@ -22,9 +23,15 @@ def load_chunk_index(project_dir: Path):
     }
     """
     path = project_dir / CHUNK_FILE
+    base_index = {"files": {}}
     if path.exists():
-        return json.loads(path.read_text())
-    return {"files": {}}
+        stored = json.loads(path.read_text() or "{}")
+        # Ensure we always have the expected structure
+        if isinstance(stored, dict):
+            base_index.update({"files": stored.get("files", {})})
+            return base_index
+    return base_index
+
 
 
 def save_chunk_index(project_dir: Path, index):

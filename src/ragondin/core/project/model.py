@@ -30,9 +30,13 @@ class Project:
     name: str
     root: Path
     
-    def __init__(self, name: str, root: Path):
+    def __init__(self, name: str, root: Path = None, base_dir: Path = None):
         self.name = name
+        if root is None:
+            base = Path(base_dir) if base_dir is not None else BASE_DIR
+            root = base / name
         self.root = Path(root)
+
 
     @property
     def paths_file(self) -> Path:

@@ -48,14 +48,21 @@ def split_markdown_file(text) -> List[Document]:
     )
     return splitter.split_text(text)
 
-def split_json_file(text) -> List[Document]:
-    splitter = RecursiveJsonSplitter(
+# def split_json_file(text) -> List[Document]:
+#     splitter = RecursiveJsonSplitter(
+#         min_chunk_size=100,
+#         max_chunk_size=1000
+#     )
+#     print()
+#     return splitter.create_documents([text])
+
+def split_json_file(text):
+    splitter = RecursiveCharacterTextSplitter(
+        separators=[",", ":", "}", "]"],
         chunk_size=800,
         chunk_overlap=100
     )
     return splitter.create_documents([text])
-
-
 
 def split_yaml_file(text):
     splitter = RecursiveCharacterTextSplitter(

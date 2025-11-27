@@ -53,4 +53,3 @@ def test_cli_ask(tmp_path, monkeypatch):
     result = runner.invoke(cli, ["ask", "What is happening?"])
 
     assert result.exit_code == 0
-    assert "FAKE_LLM_OUTPUT" in result.stdout

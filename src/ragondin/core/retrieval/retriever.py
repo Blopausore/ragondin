@@ -1,4 +1,4 @@
-from .reranker import build_reranker, apply_reranker
+from . import reranker
 from ..config.manager import get_value
 
 from ragondin.core.config.manager import get_config
@@ -13,9 +13,9 @@ def build_retriever(vector_store):
 
     if cfg.get("use_reranker", False):
         model_name = cfg.get("reranker_model")
-        reranker = build_reranker(model_name)
-        if reranker:
-            return apply_reranker(retriever, reranker)
+        reranker_model = reranker.build_reranker(model_name)
+        if reranker_model:
+            return reranker.apply_reranker(retriever, reranker_model)
     # if disabled → just return retriever
     return retriever
 

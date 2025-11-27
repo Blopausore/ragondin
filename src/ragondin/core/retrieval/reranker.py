@@ -2,8 +2,7 @@
 
 def build_reranker(config):
     """Load reranker backend only if enabled."""
-    if not config.get("reranker_enabled", False):
-        return None
+    
     if not config.get("use_reranker", False):
         return None
 

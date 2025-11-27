@@ -1,7 +1,7 @@
 import numpy as np
 from typing import List
 from langchain_core.embeddings import Embeddings
-from langchain_community.embeddings import HuggingFaceEmbeddings
+from langchain_huggingface import HuggingFaceEmbeddings
 
 def _normalize(mat: np.ndarray) -> np.ndarray:
     norms = np.linalg.norm(mat, axis=1, keepdims=True) + 1e-12
@@ -15,8 +15,11 @@ class NormalizedEmbeddings(Embeddings):
 
 
     def embed_documents(self, texts: List[str]):
-        X = np.array(self.base.embed_documents(texts), dtype="float32")
-        return _normalize(X).tolist()
+        if texts:
+            X = np.array(self.base.embed_documents(texts), dtype="float32")
+            return _normalize(X).tolist()
+        return []
+
 
     def embed_query(self, text: str):
         x = np.array(self.base.embed_query(text), dtype="float32")[None, :]

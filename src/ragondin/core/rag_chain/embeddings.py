@@ -4,8 +4,13 @@ from langchain_core.embeddings import Embeddings
 from langchain_community.embeddings import HuggingFaceEmbeddings
 
 def _normalize(mat: np.ndarray) -> np.ndarray:
+    mat = np.asarray(mat)
+    if mat.ndim == 1:
+        mat = mat.reshape(1, -1)
+
     norms = np.linalg.norm(mat, axis=1, keepdims=True) + 1e-12
     return mat / norms
+
 
 class NormalizedEmbeddings(Embeddings):
     def __init__(self, model="BAAI/bge-base-en-v1.5"):
@@ -15,9 +20,7 @@ class NormalizedEmbeddings(Embeddings):
 
 
     def embed_documents(self, texts: List[str]):
-        X = np.array(self.base.embed_documents(texts), dtype="float32")
-        return _normalize(X).tolist()
+        return _normalize(self.base.embed_documents(texts))
 
     def embed_query(self, text: str):
-        x = np.array(self.base.embed_query(text), dtype="float32")[None, :]
-        return _normalize(x)[0].tolist()
+        return _normalize([self.base.embed_query(text)])[0]
