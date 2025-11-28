@@ -30,7 +30,7 @@ It integrates modern embedding models, optional reranking, and a clean project-o
 
 ## Install from source
 
-```
+```sh
 git clone git@github.com:Blopausore/ragondin.git
 cd ragondin
 pipx install -e .
@@ -44,21 +44,42 @@ This installs the `ragondin` CLI, all core modules, and dependencies such as FAI
 
 ## 1. Create a new Ragondin project
 
-```
+```sh
 ragondin create myproject
 ragondin connect myproject
 ```
 
-## 2. Add document sources
+## 2. Manage sources
+When you are connected to a specific project you can manage its sources.
 
+### Add
 You can add any directory containing files:
 
-```
-ragondin add-source ~/work/documentation
-ragondin add-source ~/research/projectA
+```sh
+ragondin source add ~/work/documentation.txt
+ragondin source add ../some/other/source_dir
 ```
 
+### List
+You can list them.
+
+```sh
+ragondin source list
+>>> - ~/work/documentation.txt
+>>> - ~/work/a/path/to/some/other/source_dir
+```
+
+
+### Del
+
+```sh
+ragondin source del ~/work/documentation.txt
+```
+
+### Files supported
+
 Ragondin indexes all supported files recursively (`.md`, `.py`, `.tex`, `.json`, `.csv`, etc.).
+
 
 ## 3. Process and index the project
 
@@ -227,8 +248,11 @@ ragondin/
   cli/
     main.py             CLI entrypoint
     process_cmd.py      Indexing commands
+    project_cmd.py      Projects managing commands
+    sources_cmd.py      Sources
     ask_cmd.py          Query commands
     config_cmd.py       Configuration commands
+    debug_cmd.py        Debug tools commands
     utils.py            Shared CLI utilities
 ```
 

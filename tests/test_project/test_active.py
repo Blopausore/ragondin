@@ -9,12 +9,12 @@ from ragondin.core.project.active import (
     get_active_project,
     disconnect,
 )
-from ragondin.core.config.manager import CONFIG_FILE, ensure_config
+from ragondin.config.manager import CONFIG_FILE, ensure_config
 
 
 def test_active_project_basic(tmp_path, monkeypatch):
-    monkeypatch.setattr("ragondin.core.config.manager.CONFIG_DIR", tmp_path)
-    monkeypatch.setattr("ragondin.core.config.manager.CONFIG_FILE", tmp_path / "config.json")
+    monkeypatch.setattr("ragondin.config.manager.CONFIG_DIR", tmp_path)
+    monkeypatch.setattr("ragondin.config.manager.CONFIG_FILE", tmp_path / "config.json")
 
     ensure_config()
     set_active_project("p1")
@@ -26,8 +26,8 @@ def test_active_project_basic(tmp_path, monkeypatch):
 
 
 def test_active_project_overwrite(tmp_path, monkeypatch):
-    monkeypatch.setattr("ragondin.core.config.manager.CONFIG_DIR", tmp_path)
-    monkeypatch.setattr("ragondin.core.config.manager.CONFIG_FILE", tmp_path / "config.json")
+    monkeypatch.setattr("ragondin.config.manager.CONFIG_DIR", tmp_path)
+    monkeypatch.setattr("ragondin.config.manager.CONFIG_FILE", tmp_path / "config.json")
 
     ensure_config()
 

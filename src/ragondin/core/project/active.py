@@ -1,6 +1,6 @@
 # src/ragondin/core/project/active.py
 
-from ragondin.core.config.manager import get_value, set_value
+from ragondin.config.manager import get_value, set_value
 from .model import Project
 
 def set_active_project(name: str | None):

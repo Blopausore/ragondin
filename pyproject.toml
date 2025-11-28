@@ -25,7 +25,7 @@ dependencies = [
 
 [project.optional-dependencies]
 reranker = [
-    "BCEmbedding==0.1.5",
+    "flashrank",
 ]
 
 [project.scripts]

@@ -3,7 +3,7 @@
 from click.testing import CliRunner
 from ragondin.cli.main import cli
 from ragondin.core.project.model import Project
-from ragondin.core.config.manager import CONFIG_DIR, CONFIG_FILE, ensure_config
+from ragondin.config.manager import CONFIG_DIR, CONFIG_FILE, ensure_config
 
 def test_cli_connect(tmp_path, monkeypatch):
     monkeypatch.setattr("ragondin.core.project.model.BASE_DIR", tmp_path)
@@ -17,5 +17,5 @@ def test_cli_connect(tmp_path, monkeypatch):
     assert "connected" in result.output.lower()
 
     # check active project
-    from ragondin.core.config.manager import get_value
+    from ragondin.config.manager import get_value
     assert get_value("active_project") == "proj"

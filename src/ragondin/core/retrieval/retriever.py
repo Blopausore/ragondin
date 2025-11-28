@@ -1,7 +1,7 @@
 from . import reranker
-from ..config.manager import get_value
 
-from ragondin.core.config.manager import get_config
+from ragondin.config.manager import get_value
+from ragondin.config.manager import get_config
 
 
 def build_retriever(vector_store):
@@ -17,8 +17,8 @@ def build_retriever(vector_store):
         if model_name:
             reranker_cfg = {
                 "use_reranker": True,
-                "reranker_model": cfg.get("reranker_model"),
-                "reranker_top_n": cfg.get("reranker_top_n", 5),
+                "model": cfg.get("reranker_model"),
+                "top_n": cfg.get("reranker_top_n", 5),
                 "reranker_device": cfg.get("reranker_device", "cpu"),
             }
 

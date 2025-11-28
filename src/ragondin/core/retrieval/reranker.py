@@ -1,58 +1,38 @@
-# ragondin/core/retrieval/reranker.py
+from langchain_classic.retrievers.contextual_compression import ContextualCompressionRetriever
+from langchain_community.document_compressors import FlashrankRerank
+
+from ragondin.config.manager import DEFAULT_CONFIG 
 
 def build_reranker(config):
-    """Load reranker backend only if enabled."""
-    
+    """Build compressor-based reranker with FlashRank.
+    No model_name supported in FlashrankRerank!
+    """
+
     if not config.get("use_reranker", False):
         return None
 
-
     try:
-        from BCEmbedding.tools.langchain import BCERerank
+        compressor = FlashrankRerank()
+        compressor.top_n = config.get("reranker_top_n", DEFAULT_CONFIG.get("reranker_top_n"))
     except Exception as e:
         raise RuntimeError(
-            "Reranker backend BCEmbedding could not be loaded. "
-            "Install BCEmbedding==0.1.5 OR disable reranking.\n"
+            "Could not initialize FlashrankRerank. Install FlashRank:\n"
+            "  pipx runpip ragondin install flashrank\n"
             f"Original error: {e}"
         )
 
-    return BCERerank(
-        model=config.get("reranker_model", "maidalun1020/bce-reranker-base_v1"),
-        top_n=config.get("reranker_top_n", 5),
-        device=config.get("reranker_device", "cpu"),
+    return compressor
+
+
+def apply_reranker(base_retriever, compressor):
+    """
+    Use LangChain's ContextualCompressionRetriever.
+    """
+
+    if compressor is None:
+        return base_retriever
+
+    return ContextualCompressionRetriever(
+        base_compressor=compressor, 
+        base_retriever=base_retriever
     )
-
-def apply_reranker(base_retriever, reranker):
-    """
-    Wraps the base retriever in a new retriever that applies reranking.
-    """
-    class RerankingRetriever:
-        def __init__(self, retriever, reranker):
-            self.retriever = retriever
-            self.reranker = reranker
-
-        def get_relevant_documents(self, query):
-            docs = self.retriever.get_relevant_documents(query)
-            reranked = self.reranker.rerank(query, docs)
-            return reranked
-
-    return RerankingRetriever(base_retriever, reranker)
-
-
-def _apply_reranker(reranker, query: str, docs: list):
-    """Apply reranker to the retrieved documents."""
-    if reranker is None:
-        return docs  # no reranking
-
-    passages = [d.page_content for d in docs]
-    reranked = reranker.rerank(query, passages)
-
-    # BCERerank.rerank returns sorted passages → map back to docs
-    order = []
-    for passage in reranked:
-        for d in docs:
-            if d.page_content == passage:
-                order.append(d)
-                break
-
-    return order

@@ -1,18 +1,7 @@
-from pathlib import Path
 import json
 
-CONFIG_DIR = Path.home() / ".ragondin"
-CONFIG_FILE = CONFIG_DIR / "config.json"
-
-DEFAULT_CONFIG = {
-    "active_project": None,
-    "embedding_model": "BAAI/bge-base-en-v1.5",
-    "use_reranker": False,
-    "reranker_model": "BAAI/bge-reranker-base",
-    "retriever_k": 5,
-    "chunk_size": 800,
-    "chunk_overlap": 100,
-}
+from .constants import CONFIG_DIR, CONFIG_FILE
+from .defaults import DEFAULT_CONFIG
 
 def ensure_config():
     CONFIG_DIR.mkdir(exist_ok=True)
@@ -37,3 +26,4 @@ def get_value(key, default=None):
 
 def set_value(key, value):
     set_config({key: value})
+

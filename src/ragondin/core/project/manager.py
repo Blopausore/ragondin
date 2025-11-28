@@ -1,6 +1,5 @@
 # ragondin/core/project/manager.py
-from pathlib import Path
-from .model import BASE_DIR
+from ragondin.config.constants import BASE_DIR
 
 def get_list_projects():
     """Return a list of all project names in BASE_DIR."""

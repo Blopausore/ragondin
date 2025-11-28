@@ -1,7 +1,7 @@
 # tests/test_retrieval/test_retriever.py
 
+from ragondin.config.manager import set_value
 from ragondin.core.retrieval.retriever import build_retriever
-from ragondin.core.config.manager import set_value
 from langchain_community.docstore.document import Document
 
 from tests.test_indexing.fake_vectordb import FakeVectorDB

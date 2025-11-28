@@ -4,8 +4,7 @@ from dataclasses import dataclass
 from pathlib import Path
 import json
 
-BASE_DIR = Path.home() / ".ragondin" / "projects"
-
+from ragondin.config.constants import BASE_DIR
 
 @dataclass
 class Project:

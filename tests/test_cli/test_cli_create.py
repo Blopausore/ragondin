@@ -2,8 +2,8 @@
 
 from click.testing import CliRunner
 from ragondin.cli.main import cli
+from ragondin.config.manager import CONFIG_DIR, CONFIG_FILE, ensure_config
 from ragondin.core.project.model import Project
-from ragondin.core.config.manager import CONFIG_DIR, CONFIG_FILE, ensure_config
 
 def test_cli_create_project(tmp_path, monkeypatch):
     monkeypatch.setattr("ragondin.core.project.model.BASE_DIR", tmp_path)

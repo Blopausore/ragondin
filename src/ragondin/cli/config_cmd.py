@@ -1,8 +1,19 @@
 import click
 from ragondin.cli.main import cli
-from ragondin.core.config.manager import get_config, set_value
+from ragondin.config.manager import get_config, set_value, set_config 
+from ragondin.config.manager import DEFAULT_CONFIG
 
-@cli.group()
+default_help = "\n".join(
+    f"  {k}: {v}" for k, v in DEFAULT_CONFIG.items()
+)
+
+
+@cli.group(help=f"""
+View or modify Ragondin configuration.
+
+Default configuration:
+{default_help}
+""")
 def config():
     """View or modify Ragondin configuration."""
     pass
@@ -35,3 +46,9 @@ def k(n):
     """Set the retriever top-k."""
     set_value("retriever_k", n)
     click.echo(f"Retriever k set to {n}")
+
+@config.command(name="set-default")
+def set_default():
+    """Reset configuration to default values."""
+    set_config(DEFAULT_CONFIG.copy())
+    click.echo("Configuration reset to default values.")
