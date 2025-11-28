@@ -31,9 +31,9 @@ It integrates modern embedding models, optional reranking, and a clean project-o
 ## Install from source
 
 ```
-git clone https://github.com/your-repository/ragondin.git
+git clone git@github.com:Blopausore/ragondin.git
 cd ragondin
-pip install -e .
+pipx install -e .
 ```
 
 This installs the `ragondin` CLI, all core modules, and dependencies such as FAISS, Transformers, LangChain, and HuggingFace rerankers.

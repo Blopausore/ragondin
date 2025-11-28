@@ -13,6 +13,8 @@ Requires-Dist: langchain-community
 Requires-Dist: langchain_huggingface
 Requires-Dist: langchain-text-splitters
 Requires-Dist: sentence-transformers
+Provides-Extra: reranker
+Requires-Dist: BCEmbedding==0.1.5; extra == "reranker"
 
 # Ragondin – Local, Configurable Retrieval-Augmented Generation Toolkit
 

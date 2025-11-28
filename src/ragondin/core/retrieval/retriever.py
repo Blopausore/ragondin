@@ -13,8 +13,16 @@ def build_retriever(vector_store):
 
     if cfg.get("use_reranker", False):
         model_name = cfg.get("reranker_model")
-        reranker_model = reranker.build_reranker(model_name)
-        if reranker_model:
+        # reranker_model = reranker.build_reranker(model_name)
+        if model_name:
+            reranker_cfg = {
+                "use_reranker": True,
+                "reranker_model": cfg.get("reranker_model"),
+                "reranker_top_n": cfg.get("reranker_top_n", 5),
+                "reranker_device": cfg.get("reranker_device", "cpu"),
+            }
+
+            reranker_model = reranker.build_reranker(reranker_cfg)
             return reranker.apply_reranker(retriever, reranker_model)
     # if disabled → just return retriever
     return retriever
